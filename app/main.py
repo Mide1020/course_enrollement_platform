@@ -5,6 +5,7 @@ from app.config import settings
 app = FastAPI(
     title=settings.APP_NAME,
     description="A course enrollment platform with JWT authentication",
+    version="1.0.0"
 )
 
 
@@ -16,8 +17,3 @@ def root():
     return {
         "message": "Welcome to Course Enrollment Platform",
     }
-
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
