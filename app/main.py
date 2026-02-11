@@ -17,3 +17,8 @@ def root():
     return {
         "message": "Welcome to Course Enrollment Platform",
     }
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
