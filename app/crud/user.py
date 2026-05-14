@@ -24,8 +24,7 @@ class CRUDUser:
         )
         
         db.add(db_user)
-        db.commit()
-        db.refresh(db_user) 
+        # db.commit() and db.refresh() removed for consistency; caller should manage transactions
         return db_user
     
      #get user by email

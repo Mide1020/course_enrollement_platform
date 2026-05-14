@@ -158,7 +158,7 @@ def test_delete_course_as_admin(client, admin_token, db):
     db.refresh(course)
     
     response = client.delete(
-        f"/api/v1/courses/{course.id}/",
+        f"/api/v1/courses/{course.id}",
         headers={"Authorization": f"Bearer {admin_token}"}
     )
     

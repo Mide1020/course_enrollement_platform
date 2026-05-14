@@ -5,6 +5,9 @@ from typing import Optional
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    role: str
+    name: str
+    id: str
 
 
 class TokenData(BaseModel):

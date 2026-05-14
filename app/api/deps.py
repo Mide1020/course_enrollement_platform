@@ -83,3 +83,12 @@ def get_current_student(current_user: User = Depends(get_current_active_user)):
             detail="Student access required"
         )
     return current_user
+
+
+def get_current_instructor(current_user: User = Depends(get_current_active_user)):
+    if current_user.role not in [UserRole.INSTRUCTOR, UserRole.ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Instructor or Admin access required"
+        )
+    return current_user

@@ -1,4 +1,8 @@
 import pytest
+import os
+
+os.environ["TESTING"] = "true"
+
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -103,6 +107,33 @@ def admin_token(client, test_admin):
         data={
             "username": "testadmin@test.com",
             "password": "admin123"
+        }
+    )
+    return response.json()["access_token"]
+
+
+@pytest.fixture(scope="function")
+def test_instructor(db):
+    instructor = User(
+        email="testinstructor@test.com",
+        name="Test Instructor",
+        hashed_password=get_password_hash("password123"),
+        role=UserRole.INSTRUCTOR,
+        is_active=True
+    )
+    db.add(instructor)
+    db.commit()
+    db.refresh(instructor)
+    return instructor
+
+
+@pytest.fixture(scope="function")
+def instructor_token(client, test_instructor):
+    response = client.post(
+        "/api/v1/auth/login",
+        data={
+            "username": "testinstructor@test.com",
+            "password": "password123"
         }
     )
     return response.json()["access_token"]

@@ -8,6 +8,7 @@ import uuid
 
 class UserRole(str, enum.Enum):
     STUDENT = "student"
+    INSTRUCTOR = "instructor"
     ADMIN = "admin"
 
 
@@ -19,6 +20,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     role = Column(Enum(UserRole), nullable=False, default=UserRole.STUDENT)
     is_active = Column(Boolean, default=True, nullable=False)
+    bio = Column(String, nullable=True)
     
     # Relationship
     enrollments = relationship("Enrollment", back_populates="user", cascade="all, delete-orphan")

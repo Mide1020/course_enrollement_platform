@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Premium Course Enrollment Platform - Learn from the best.">
+    <title>LMS Pro | Advanced Learning Platform</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/main.css">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app-root">
+        <!-- Navigation bar -->
+        <nav class="navbar">
+            <a href="/" class="brand" onclick="route(event)">
+                <i class="fas fa-graduation-cap"></i>
+                <span>LMS Pro</span>
+            </a>
+            
+            <div class="nav-links" id="nav-auth-section">
+                <!-- Dynamic links will be injected here -->
+            </div>
+        </nav>
+
+        <!-- Main View Container -->
+        <main id="main-view" class="main-content fade-in">
+            <!-- Content will be injected by the router -->
+            <div class="loader-container">
+                <div class="loader"></div>
+            </div>
+        </main>
+
+        <!-- Toast Notifications Container -->
+        <div id="toast-container"></div>
+    </div>
+
+    <!-- Scripts - Foundation -->
+    <script src="/static/js/api.js?v=2"></script>
+    <script src="/static/js/router.js?v=2"></script>
+    <script src="/static/js/app.js?v=2"></script>
+
+    <!-- Scripts - Pages -->
+    <script src="/static/js/pages/home.js"></script>
+    <script src="/static/js/pages/auth.js"></script>
+    <script src="/static/js/pages/catalog.js"></script>
+    <script src="/static/js/pages/dashboard.js"></script>
+    <script src="/static/js/pages/instructor.js"></script>
+    <script src="/static/js/pages/course.js"></script>
+    <script src="/static/js/pages/profile.js"></script>
+    <script src="/static/js/pages/manage.js"></script>
+</body>
+</html>

@@ -1,13 +1,13 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
-from app.models.enrollment import Enrollment
-from app.schema.enrollment import EnrollmentCreate
+from app.models.enrollment import Enrollment, EnrollmentStatus
+from app.models.course import Course
+from app.schema.enrollment import EnrollmentCreate, EnrollmentUpdate
 from typing import Optional, List
 import uuid
 
 
 class CRUDEnrollment:
-
 
     def get_by_id(self, db: Session, enrollment_id: uuid.UUID):
         return db.query(Enrollment).filter(Enrollment.id == enrollment_id).first()
@@ -28,6 +28,9 @@ class CRUDEnrollment:
     def get_all(self, db: Session, skip: int = 0, limit: int = 100):
         return db.query(Enrollment).offset(skip).limit(limit).all()
     
+    def get_by_user(self, db: Session, user_id: uuid.UUID):
+        return db.query(Enrollment).filter(Enrollment.user_id == user_id).all()
+
     def get_by_course(
         self, 
         db: Session, 
@@ -40,26 +43,43 @@ class CRUDEnrollment:
         ).offset(skip).limit(limit).all()
     
     def count_enrollments_for_course(self, db: Session, course_id: uuid.UUID):
+        # Using with_for_update for atomic checks if needed, but count is usually okay
+        # if combined with a transaction in the API layer.
         return db.query(Enrollment).filter(Enrollment.course_id == course_id).count()
     
     def create(
         self, 
         db: Session, 
-        enrollment: EnrollmentCreate, 
+        course_id: uuid.UUID, 
         user_id: uuid.UUID
     ):
-        
         db_enrollment = Enrollment(
             user_id=user_id,
-            course_id=enrollment.course_id
+            course_id=course_id
         )
         
         db.add(db_enrollment)
-        db.commit()
-        db.refresh(db_enrollment)
+        # db.commit() and db.refresh() removed to allow transaction management in API layer
         
         return db_enrollment
     
+    def update(
+        self, 
+        db: Session, 
+        enrollment_id: uuid.UUID, 
+        obj_in: EnrollmentUpdate
+    ):
+        db_enrollment = self.get_by_id(db, enrollment_id)
+        if not db_enrollment:
+            return None
+        
+        update_data = obj_in.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(db_enrollment, field, value)
+        
+        db.add(db_enrollment)
+        return db_enrollment
+
     def delete(self, db: Session, enrollment_id: uuid.UUID):
         db_enrollment = self.get_by_id(db, enrollment_id)
         
@@ -67,10 +87,9 @@ class CRUDEnrollment:
             return None
         
         db.delete(db_enrollment)
-        db.commit()
+        # db.commit() removed to allow transaction management in API layer
         
         return db_enrollment
 
 
-# instance
 enrollment_crud = CRUDEnrollment()

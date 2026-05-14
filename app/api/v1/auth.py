@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -8,13 +8,19 @@ from app.schema.token import Token
 from app.crud.user import user_crud
 from app.core.security import create_access_token
 from app.config import settings
+from app.core.limiter import limiter
+from app.core.notifier import send_welcome_email, send_login_notification
 
 
 router = APIRouter()
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def register(user: UserCreate, db: Session = Depends(get_db)):
+def register(
+    user: UserCreate, 
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
     
     # Check if email already exists
     existing_user = user_crud.get_by_email(db, email=user.email)
@@ -26,12 +32,19 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     
     # Create the user
     db_user = user_crud.create(db, user=user)
+    db.commit()
+    db.refresh(db_user)
+    
+    background_tasks.add_task(send_welcome_email, user_email=db_user.email, user_name=db_user.name)
     
     return db_user
 
 
 @router.post("/login", response_model=Token)
+@limiter.limit("5/minute")
 def login(
+    request: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     form_data: OAuth2PasswordRequestForm = Depends()
 ):
@@ -57,4 +70,12 @@ def login(
         expires_delta=access_token_expires
     )
     
-    return {"access_token": access_token, "token_type": "bearer"}
+    background_tasks.add_task(send_login_notification, user_email=user.email, ip_address=request.client.host)
+    
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer",
+        "role": user.role.value,
+        "name": user.name,
+        "id": str(user.id)
+    }
