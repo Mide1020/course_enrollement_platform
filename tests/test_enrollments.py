@@ -169,7 +169,7 @@ def test_admin_view_course_enrollments(client, admin_token, db):
     db.refresh(course)
     
     response = client.get(
-        f"/api/v1/enrollments/course/{course.id}",
+        f"/api/v1/enrollments/course/{course.id}/all",
         headers={"Authorization": f"Bearer {admin_token}"}
     )
     
