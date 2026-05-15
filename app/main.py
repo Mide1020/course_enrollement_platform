@@ -31,6 +31,7 @@ os.makedirs("uploads", exist_ok=True)
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 app.include_router(api_router, prefix="/api/v1")
 
 
